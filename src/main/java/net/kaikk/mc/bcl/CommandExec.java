@@ -382,7 +382,7 @@ public class CommandExec implements CommandExecutor {
 		int amountOnlineOnly = pd.getOnlineOnlyChunksAmount();
 		
 		return ChatColor.GOLD + "=== "+player.getName()+" chunks amount ===\n" + ChatColor.GREEN
-				+ "Always-on - " + ((player.isOnline() && player.getPlayer().hasPermission("betterchunkloader.alwayson")) ? "Free: "+freeAlwaysOn+" Used: "+(amountAlwaysOn-freeAlwaysOn)+" Total: "+amountAlwaysOn : "Missing permission")+"\n"
-				+ "Online-only - " + ((player.isOnline() && player.getPlayer().hasPermission("betterchunkloader.onlineonly")) ? "Free: "+freeOnlineOnly+" Used: "+(amountOnlineOnly-freeOnlineOnly)+" Total: "+amountOnlineOnly+"" : "Missing permission");
+				+ "Always-on - " + ((BetterChunkLoader.hasPermission(player, "betterchunkloader.alwayson")) ? "Free: "+freeAlwaysOn+" Used: "+(amountAlwaysOn-freeAlwaysOn)+" Total: "+amountAlwaysOn : "Missing permission")+"\n"
+				+ "Online-only - " + ((BetterChunkLoader.hasPermission(player, "betterchunkloader.onlineonly")) ? "Free: "+freeOnlineOnly+" Used: "+(amountOnlineOnly-freeOnlineOnly)+" Total: "+amountOnlineOnly+"" : "Missing permission");
 	}
 }

@@ -3,18 +3,20 @@ package net.kaikk.mc.bcl;
 import java.io.File;
 import java.util.UUID;
 
-import net.kaikk.mc.bcl.datastore.DataStoreManager;
-import net.kaikk.mc.bcl.datastore.MySqlDataStore;
-import net.kaikk.mc.bcl.datastore.XmlDataStore;
-import net.kaikk.mc.bcl.forgelib.BCLForgeLib;
-
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import net.kaikk.mc.bcl.datastore.DataStoreManager;
+import net.kaikk.mc.bcl.datastore.MySqlDataStore;
+import net.kaikk.mc.bcl.datastore.XmlDataStore;
+import net.kaikk.mc.bcl.forgelib.BCLForgeLib;
+import net.milkbowl.vault.permission.Permission;
+
 public class BetterChunkLoader extends JavaPlugin {
 	private static BetterChunkLoader instance;
 	private Config config;
+	private static Permission permissions;
 	
 	public void onLoad() {
 		// Register XML DataStore
@@ -40,6 +42,9 @@ public class BetterChunkLoader extends JavaPlugin {
 		}
 		
 		instance=this;
+		
+		// load vault permissions
+		permissions = Bukkit.getServicesManager().getRegistration(Permission.class).getProvider();
 		
 		try {
 			// load config
@@ -113,5 +118,13 @@ public class BetterChunkLoader extends JavaPlugin {
 	
 	public Config config() {
 		return this.config;
+	}
+	
+	public static boolean hasPermission(OfflinePlayer player, String permission) {
+		try {
+			return permissions.playerHas(null, player, permission);
+		} catch (Exception e) {
+			return false;
+		}
 	}
 }
