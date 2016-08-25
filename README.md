@@ -15,7 +15,7 @@ This plugin requires [Vault](https://dev.bukkit.org/bukkit-plugins/vault/) and [
 - Download BetterChunkLoader and place it on the plugins folder
 - Download BCLForgeLib and place it on the mods folder
 
-###s Commands
+### Commands
 - /bcl <info|list|chunks|delete|purge|reload|enable|disable> - main commands
 - /bcl info - shows generic info about the plugin
 - /bcl list (own|PlayerName|all) [page] - list your own, the player name, or all chunk loaders
