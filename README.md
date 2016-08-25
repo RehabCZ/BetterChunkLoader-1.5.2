@@ -9,11 +9,33 @@ The amount of chunks that can be loaded per player can be set manually with inga
 
 It provides ingame-commands for admins so they can remove all chunk loaders for a player, and chunk loaders can be disabled by disabling the plugin.
 
-This plugin requires Vault and BCLForgeLib, a server-side Forge mod library, so it can be added to any modpack without requiring the mod on client-side.
+This plugin requires [Vault](https://dev.bukkit.org/bukkit-plugins/vault/) and [BCLForgeLib](https://github.com/KaiKikuchi/BCLForgeLib), a server-side Forge mod library, so it can be added to any modpack without requiring the mod on client-side.
 
 #### Installation
 - Download BetterChunkLoader and place it on the plugins folder
 - Download BCLForgeLib and place it on the mods folder
 
-### Commands
-Type /bcl for the list of commands and a short description.
+###s Commands
+- /bcl <info|list|chunks|delete|purge|reload|enable|disable> - main commands
+- /bcl info - shows generic info about the plugin
+- /bcl list (own|PlayerName|all) [page] - list your own, the player name, or all chunk loaders
+- /bcl chunks (get|add|set) (PlayerName) (alwayson|onlineonly) (amount) - show, add, or set the amount of chunks that can be loaded by the specified player
+- /bcl delete (PlayerName) - delete all the chunk loaders for the specified player
+- /bcl purge - purge all the invalid chunk loaders. Useful if you reset the world
+- /bcl <enable|disable> - enable or disable the plugin
+
+#### Permissions
+- betterchunkloader.onlineonly - Permission to create new onlineonly chunk loaders
+- betterchunkloader.alwayson - Permission to create new alwayson chunk loaders
+- betterchunkloader.list.own - List own chunk loaders
+- betterchunkloader.unlimitedchunks - Override chunks amount limits
+- betterchunkloader.list.others - List others chunk loaders
+- betterchunkloader.edit - Edit others chunk loaders
+- betterchunkloader.adminloader - Create admin chunk loaders
+- betterchunkloader.info - Show general statistics
+- betterchunkloader.delete - Delete player chunk loaders
+- betterchunkloader.chunks - Manage players chunks amount
+- betterchunkloader.purge - Allows the use of the purge command
+- betterchunkloader.reload - Reload the plugin
+- betterchunkloader.enable - Enable the plugin
+- betterchunkloader.disable - Disable the plugin
