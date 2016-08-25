@@ -15,7 +15,7 @@ This plugin requires [Vault](https://dev.bukkit.org/bukkit-plugins/vault/) and [
 - Download BetterChunkLoader and place it on the plugins folder
 - Download BCLForgeLib and place it on the mods folder
 
-### Commands
+#### Commands
 - /bcl <info|list|chunks|delete|purge|reload|enable|disable> - main commands
 - /bcl info - shows generic info about the plugin
 - /bcl list (own|PlayerName|all) [page] - list your own, the player name, or all chunk loaders
@@ -39,3 +39,7 @@ This plugin requires [Vault](https://dev.bukkit.org/bukkit-plugins/vault/) and [
 - betterchunkloader.reload - Reload the plugin
 - betterchunkloader.enable - Enable the plugin
 - betterchunkloader.disable - Disable the plugin
+
+#### How to use
+Place a iron block or a diamond block, then right click with a blaze rod. A GUI will appear. Click the range (of course it's in chunks). If you have the adminloader permission, you can create admin chunk loaders by shift+right clicking the iron/diamond block with a blaze rod. Left-click a chunk loader to show basic information about the chunk loader. Right click a chunk loader to edit its range or disable it.
+
