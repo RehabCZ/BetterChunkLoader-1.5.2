@@ -9,7 +9,7 @@ The amount of chunks that can be loaded per player can be set manually with inga
 
 It provides ingame-commands for admins so they can remove all chunk loaders for a player, and chunk loaders can be disabled by disabling the plugin.
 
-This plugin requires BCLForgeLib, a server-side Forge mod library, so it can be added to any modpack without requiring the mod on client-side.
+This plugin requires Vault and BCLForgeLib, a server-side Forge mod library, so it can be added to any modpack without requiring the mod on client-side.
 
 #### Installation
 - Download BetterChunkLoader and place it on the plugins folder
