@@ -164,8 +164,7 @@ public class CChunkLoader extends ChunkLoader implements InventoryHolder {
 	
 	/** Shows the chunk loader's user interface to the specified player */
 	void showUI(Player player) {
-		
-		String title = (this.range!=-1 ? Messages.get("ChunkLoaderGUITitle").replace("[owner]", this.getOwnerName()).replace("[location]", this.getLoc().toString()) : this.isAdminChunkLoader() ? Messages.get("NewChunkLoaderGUITitle") : Messages.get("NewAdminChunkLoaderGUITitle"));
+		String title = (this.range!=-1 ? Messages.get("ChunkLoaderGUITitle").replace("[owner]", this.getOwnerName()).replace("[location]", this.getLoc().toString()) : this.isAdminChunkLoader() ? Messages.get("NewAdminChunkLoaderGUITitle") : Messages.get("NewChunkLoaderGUITitle"));
 		if (title.length()>32) {
 			title=title.substring(0, 32);
 		}
