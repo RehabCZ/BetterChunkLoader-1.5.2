@@ -17,6 +17,7 @@ public class BetterChunkLoader extends JavaPlugin {
 	private static BetterChunkLoader instance;
 	private Config config;
 	private static Permission permissions;
+	public boolean enabled;
 	
 	public void onLoad() {
 		// Register XML DataStore
@@ -43,54 +44,71 @@ public class BetterChunkLoader extends JavaPlugin {
 		
 		instance=this;
 		
+		this.enable();
+	}
+	
+	public void enable() {
 		// load vault permissions
-		permissions = Bukkit.getServicesManager().getRegistration(Permission.class).getProvider();
-		
-		try {
-			// load config
-			this.getLogger().info("Loading config...");
-			this.config = new Config(this);
+		if (!this.enabled) {
+			permissions = Bukkit.getServicesManager().getRegistration(Permission.class).getProvider();
 			
-			// instantiate data store, if needed
-			if (DataStoreManager.getDataStore()==null) {
-				DataStoreManager.setDataStoreInstance(config.dataStore);
-			}
-			
-			// load datastore
-			this.getLogger().info("Loading "+DataStoreManager.getDataStore().getName()+" Data Store...");
-			DataStoreManager.getDataStore().load();
-			
-			this.getLogger().info("Loaded "+DataStoreManager.getDataStore().getChunkLoaders().size()+" chunk loaders data.");
-			this.getLogger().info("Loaded "+DataStoreManager.getDataStore().getPlayersData().size()+" players data.");
-			
-			// load always on chunk loaders
-			int count=0;
-			for (CChunkLoader cl : DataStoreManager.getDataStore().getChunkLoaders()) {
-				if (cl.isLoadable()) {
-					BCLForgeLib.instance().addChunkLoader(cl);
-					count++;
+			try {
+				// load config
+				this.getLogger().info("Loading config...");
+				this.config = new Config(this);
+				
+				// load messages localization
+				Messages.load(this, "messages.yml");
+				
+				// instantiate data store, if needed
+				if (DataStoreManager.getDataStore()==null) {
+					DataStoreManager.setDataStoreInstance(config.dataStore);
 				}
+				
+				// load datastore
+				this.getLogger().info("Loading "+DataStoreManager.getDataStore().getName()+" Data Store...");
+				DataStoreManager.getDataStore().load();
+				
+				this.getLogger().info("Loaded "+DataStoreManager.getDataStore().getChunkLoaders().size()+" chunk loaders data.");
+				this.getLogger().info("Loaded "+DataStoreManager.getDataStore().getPlayersData().size()+" players data.");
+				
+				// load always on chunk loaders
+				int count=0;
+				for (CChunkLoader cl : DataStoreManager.getDataStore().getChunkLoaders()) {
+					if (cl.isLoadable()) {
+						BCLForgeLib.instance().addChunkLoader(cl);
+						count++;
+					}
+				}
+				
+				this.getLogger().info("Loaded "+count+" always-on chunk loaders.");
+				
+				this.getLogger().info("Loading Listeners...");
+				this.getServer().getPluginManager().registerEvents(new EventListener(), this);
+				this.getCommand("betterchunkloader").setExecutor(new CommandExec(this));
+				
+				this.getLogger().info("Load complete.");
+			} catch (Exception e) {
+				e.printStackTrace();
+				this.getLogger().warning("Load failed!");
+				Bukkit.getPluginManager().disablePlugin(this);
 			}
-			
-			this.getLogger().info("Loaded "+count+" always-on chunk loaders.");
-			
-			this.getLogger().info("Loading Listeners...");
-			this.getServer().getPluginManager().registerEvents(new EventListener(), this);
-			this.getCommand("betterchunkloader").setExecutor(new CommandExec(this));
-			
-			this.getLogger().info("Load complete.");
-		} catch (Exception e) {
-			e.printStackTrace();
-			this.getLogger().warning("Load failed!");
-			Bukkit.getPluginManager().disablePlugin(this);
+			this.enabled = true;
 		}
 	}
 	
 	public void onDisable() {
-		for (CChunkLoader cl : DataStoreManager.getDataStore().getChunkLoaders()) {
-			BCLForgeLib.instance().removeChunkLoader(cl);
-		}
+		this.disable();
 		instance=null;
+	}
+	
+	public void disable() {
+		if (this.enabled) {
+			for (CChunkLoader cl : DataStoreManager.getDataStore().getChunkLoaders()) {
+				BCLForgeLib.instance().removeChunkLoader(cl);
+			}
+			this.enabled = false;
+		}
 	}
 
 	public static BetterChunkLoader instance() {

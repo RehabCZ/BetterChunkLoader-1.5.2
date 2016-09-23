@@ -4,10 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import net.kaikk.mc.bcl.datastore.DataStoreManager;
-import net.kaikk.mc.bcl.forgelib.BCLForgeLib;
-
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -23,6 +19,9 @@ import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import net.kaikk.mc.bcl.datastore.DataStoreManager;
+import net.kaikk.mc.bcl.forgelib.BCLForgeLib;
 
 public class EventListener implements Listener {
 	@EventHandler(ignoreCancelled=true, priority = EventPriority.MONITOR)
@@ -44,14 +43,14 @@ public class EventListener implements Listener {
 						if (player.getUniqueId().equals(chunkLoader.getOwner()) || player.hasPermission("betterchunkloader.edit") || (chunkLoader.isAdminChunkLoader() && player.hasPermission("betterchunkloader.adminloader"))) {
 							chunkLoader.showUI(player);
 						} else {
-							player.sendMessage(ChatColor.RED + "You can't edit others' chunk loaders.");
+							player.sendMessage(Messages.get("CantEditOthersChunkLoaders"));
 						}
 					} else {
 						if (canBreak(clickedBlock, player)) {
 							UUID uid=player.getUniqueId();
 							if (clickedBlock.getType()==Material.DIAMOND_BLOCK) {
 								if (!player.hasPermission("betterchunkloader.alwayson")) {
-									player.sendMessage(ChatColor.RED + "You don't have the permission to create always-on chunk loaders."+(player.isOp()?" (betterchunkloader.alwayson is needed)":""));
+									player.sendMessage(Messages.get("NoPermissionToCreateAlwaysOnChunkLoaders") +(player.isOp()?" (betterchunkloader.alwayson is needed)":""));
 									return;
 								}
 								if (player.isSneaking() && player.hasPermission("betterchunkloader.adminloader")) {
@@ -59,7 +58,7 @@ public class EventListener implements Listener {
 								}
 							} else if (clickedBlock.getType()==Material.IRON_BLOCK) {
 								if (!player.hasPermission("betterchunkloader.onlineonly")) {
-									player.sendMessage(ChatColor.RED + "You don't have the permission to create online-only chunk loaders."+(player.isOp()?" (betterchunkloader.onlineonly is needed)":""));
+									player.sendMessage(Messages.get("NoPermissionToCreateOnlineOnlyChunkLoaders")+(player.isOp()?" (betterchunkloader.onlineonly is needed)":""));
 									return;
 								}
 							} else {
@@ -69,14 +68,14 @@ public class EventListener implements Listener {
 							chunkLoader = new CChunkLoader((int) (Math.floor(clickedBlock.getX()/16.00)), (int) (Math.floor(clickedBlock.getZ()/16.00)), clickedBlock.getWorld().getName(), (byte) -1, uid, new BlockLocation(clickedBlock), null, clickedBlock.getType()==Material.DIAMOND_BLOCK);
 							chunkLoader.showUI(player);
 						} else {
-							player.sendMessage(ChatColor.RED + "You haven't build permission at this location");
+							player.sendMessage(Messages.get("NoBuildPermission"));
 						}
 					}
 				} else {
 					if (chunkLoader!=null) {
 						player.sendMessage(chunkLoader.info());
 					} else {
-						player.sendMessage(ChatColor.GOLD + "Iron and Diamond blocks can be converted into chunk loaders. Right click it with a blaze rod.");
+						player.sendMessage(Messages.get("CanCreateChunkLoaders"));
 					}
 				}
 			}
@@ -98,11 +97,11 @@ public class EventListener implements Listener {
 		DataStoreManager.getDataStore().removeChunkLoader(chunkLoader);
 		
 		Player player = event.getPlayer();
-		player.sendMessage(ChatColor.RED + "Chunk loader removed.");
+		player.sendMessage(Messages.get("Removed"));
 		
 		Player owner = chunkLoader.getPlayer();
 		if (owner!=null && player!=owner) {
-			owner.sendMessage(ChatColor.RED + "Your chunk loader at "+chunkLoader.getLoc().toString()+" has been removed by "+player.getDisplayName()+".");
+			owner.sendMessage(Messages.get("RemovedBy").replace("[location]", chunkLoader.getLoc().toString()).replace("[player]", player.getDisplayName()));
 		}
 		
 		BetterChunkLoader.instance().getLogger().info(player.getName()+" broke "+chunkLoader.getOwnerName()+"'s chunk loader at "+chunkLoader.getLocationString());
@@ -147,12 +146,12 @@ public class EventListener implements Listener {
     		
     		if (chunkLoader.isAdminChunkLoader()) {
     			if (!player.hasPermission("betterchunkloader.adminloader")) {
-	    			player.sendMessage(ChatColor.RED + "You don't have permissions for this!");
+	    			player.sendMessage(Messages.get("PermissionDenied"));
 	    			return;
     			}
     		} else {
 	    		if (!player.getUniqueId().equals(chunkLoader.getOwner()) && !player.hasPermission("betterchunkloader.edit")) {
-	    			player.sendMessage(ChatColor.RED + "You can't edit others' chunk loaders.");
+	    			player.sendMessage(Messages.get("CantEditOthersChunkLoaders"));
 	    			return;
 	    		}
     		}
@@ -179,7 +178,7 @@ public class EventListener implements Listener {
 	        				}
 	        				
 	        				if (needed>available) {
-	        					player.sendMessage(ChatColor.RED + "Not enough free chunks! Needed: "+needed+". Available: "+available+".");
+	        					player.sendMessage(Messages.get("NotEnoughChunks").replace("[needed]", needed+"").replace("[available]", available+""));
 	        					closeInventory(player);
 	        					return;
 	        				}
@@ -188,7 +187,7 @@ public class EventListener implements Listener {
         			
     				BetterChunkLoader.instance().getLogger().info(player.getName()+" edited "+chunkLoader.getOwnerName()+"'s chunk loader at "+chunkLoader.getLocationString()+" range from "+chunkLoader.getRange()+" to "+pos);
     				DataStoreManager.getDataStore().changeChunkLoaderRange(chunkLoader, pos);
-    				player.sendMessage(ChatColor.GOLD + "Chunk Loader updated.");
+    				player.sendMessage(Messages.get("ChunkLoaderUpdated"));
     				closeInventory(player);
         		}
     		} else if (pos>1 && pos<7) {
@@ -204,7 +203,7 @@ public class EventListener implements Listener {
 					}
 					
 					if (needed>available) {
-						player.sendMessage(ChatColor.RED + "Not enough free chunks! Needed: "+needed+". Available: "+available+".");
+						player.sendMessage(Messages.get("NotEnoughChunks").replace("[needed]", needed+"").replace("[available]", available+""));
 						closeInventory(player);
 						return;
 					}
@@ -215,7 +214,7 @@ public class EventListener implements Listener {
     			BetterChunkLoader.instance().getLogger().info(player.getName()+" made a new "+(chunkLoader.isAdminChunkLoader()?"admin ":"")+"chunk loader at "+chunkLoader.getLocationString()+" with range "+pos);
     			DataStoreManager.getDataStore().addChunkLoader(chunkLoader);
     			closeInventory(player);
-    			player.sendMessage(ChatColor.GOLD + "Chunk Loader created.");
+    			player.sendMessage(Messages.get("ChunkLoaderCreated"));
         	}
     	}
     }

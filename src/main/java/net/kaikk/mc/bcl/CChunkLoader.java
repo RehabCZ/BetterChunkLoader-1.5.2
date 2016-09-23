@@ -8,10 +8,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import net.kaikk.mc.bcl.forgelib.ChunkLoader;
-
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -19,6 +16,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import net.kaikk.mc.bcl.forgelib.ChunkLoader;
 
 @XmlRootElement
 @XmlAccessorType(value=XmlAccessType.NONE)
@@ -68,7 +67,7 @@ public class CChunkLoader extends ChunkLoader implements InventoryHolder {
 	
 	public String getOwnerName() {
 		if (this.isAdminChunkLoader()) {
-			return "Admin";
+			return Messages.get("Admin");
 		}
 		return this.getOfflinePlayer().getName();
 	}
@@ -86,11 +85,7 @@ public class CChunkLoader extends ChunkLoader implements InventoryHolder {
 	}
 	
 	public String info() {
-		return ChatColor.GOLD + "== Chunk loader info ==\n"
-				+ ChatColor.WHITE + "Owner: "+this.getOwnerName()+"\n"
-						+ "Position: "+this.loc.toString()+"\n"
-						+ "Chunk: "+this.worldName+":"+this.chunkX+","+this.chunkZ+"\n"
-						+ "Size: "+this.sizeX();
+		return Messages.get("ChunkLoaderInfo").replace("[owner]", this.getOwnerName()).replace("[location]", this.loc.toString()).replace("[world]", this.worldName).replace("[chunkX]", this.chunkX+"").replace("[chunkZ]", this.chunkZ+"").replace("[size]", this.sizeX());
 	}
 	
 	public boolean isLoadable() {
@@ -169,16 +164,17 @@ public class CChunkLoader extends ChunkLoader implements InventoryHolder {
 	
 	/** Shows the chunk loader's user interface to the specified player */
 	void showUI(Player player) {
-		String title = (this.range!=-1 ? "BCL:"+this.getOwnerName()+"@"+this.getLoc() : "New "+(this.isAdminChunkLoader()?"Admin ":"")+"BetterChunkLoader");
+		
+		String title = (this.range!=-1 ? Messages.get("ChunkLoaderGUITitle").replace("[owner]", this.getOwnerName()).replace("[location]", this.getLoc().toString()) : this.isAdminChunkLoader() ? Messages.get("NewChunkLoaderGUITitle") : Messages.get("NewAdminChunkLoaderGUITitle"));
 		if (title.length()>32) {
 			title=title.substring(0, 32);
 		}
 		Inventory inventory = Bukkit.createInventory(this, 9, title);
 
-		addInventoryOption(inventory, 0, Material.REDSTONE_TORCH_ON, "Remove");
+		addInventoryOption(inventory, 0, Material.REDSTONE_TORCH_ON, Messages.get("Remove"));
 		
 		for (byte i=0; i<5; i++) {
-			addInventoryOption(inventory, i+2, Material.MAP, "Size "+this.sizeX(i)+(this.getRange()==i?" [selected]":""));
+			addInventoryOption(inventory, i+2, Material.MAP, Messages.get("Size").replace("[size]", this.sizeX(i)+"").replace("[selected]", (this.getRange()==i ? Messages.get("Selected") : "")));
 		}
 		
 		player.openInventory(inventory);

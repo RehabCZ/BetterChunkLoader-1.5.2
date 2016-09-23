@@ -28,7 +28,7 @@ public class CommandExec implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equals("betterchunkloader")) {
-			final String usage = ChatColor.GOLD + "Usage: /"+label+" [info|list|chunks|delete|purge|reload]";
+			final String usage = ChatColor.GOLD + "Usage: /"+label+" [info|list|chunks|delete|purge|reload|enable|disable]";
 			if (args.length==0) {
 				sender.sendMessage(usage);
 				return false;
@@ -47,6 +47,10 @@ public class CommandExec implements CommandExecutor {
 				return purge(sender);
 			case "reload":
 				return reload(sender);
+			case "enable":
+				return enable(sender);
+			case "disable":
+				return disable(sender);
 			}
 
 			sender.sendMessage(usage);
@@ -57,13 +61,13 @@ public class CommandExec implements CommandExecutor {
 	
 	private boolean info(CommandSender sender) {
 		if (!sender.hasPermission("betterchunkloader.info")) {
-			sender.sendMessage(ChatColor.RED + "You don't have permission to run this command.");
+			sender.sendMessage(Messages.get("PermissionDenied"));
 			return false;
 		}
 		
 		List<CChunkLoader> chunkLoaders = DataStoreManager.getDataStore().getChunkLoaders();
 		if (chunkLoaders.isEmpty()) {
-			sender.sendMessage("No statistics available.");
+			sender.sendMessage(Messages.get("NoStatistics"));
 			return true;
 		}
 		
@@ -97,13 +101,8 @@ public class CommandExec implements CommandExecutor {
 				maxChunksPlayer=entry.getKey();
 			}
 		}
-
-		sender.sendMessage(ChatColor.GOLD + "=== BetterChunkLoader statistics ===\n"
-				+ ChatColor.WHITE + "OnlineOnly: "+onlineOnlyLoaders+" chunk loaders ("+onlineOnlyChunks+" chunks)\n"
-									+ "AlwaysOn: "+alwaysOnLoaders+" chunk loaders ("+alwaysOnChunks+" chunks)\n"
-									+ "Number of players using chunk loaders: "+players+"\n"
-									+ "Player with the highest loaded chunks amount: "+instance.getServer().getOfflinePlayer(maxChunksPlayer).getName()+" ("+maxChunksCount+" chunks)\n");
 		
+		sender.sendMessage(Messages.get("Info").replace("[onlineOnlyLoaders]", onlineOnlyLoaders+"").replace("[onlineOnlyChunks]", onlineOnlyChunks+"").replace("[alwaysOnLoaders]", alwaysOnLoaders+"").replace("[alwaysOnChunks]", alwaysOnChunks+"").replace("[players]", players+"").replace("[maxChunksPlayer]", instance.getServer().getOfflinePlayer(maxChunksPlayer).getName()).replace("[maxChunksCount]", maxChunksCount+""));		
 		return true;
 	}
 	
@@ -122,14 +121,14 @@ public class CommandExec implements CommandExecutor {
 					throw new NumberFormatException();
 				}
 			} catch (NumberFormatException e) {
-				sender.sendMessage(ChatColor.RED + "Invalid page");
+				sender.sendMessage(Messages.get("InvalidPage"));
 				return false;
 			}
 		}
 		
 		if (args[1].equalsIgnoreCase("all")) {
 			if (!sender.hasPermission("betterchunkloader.list.others")) {
-				sender.sendMessage(ChatColor.RED + "You don't have permission to run this command.");
+				sender.sendMessage(Messages.get("PermissionDenied"));
 				return false;
 			}
 			
@@ -138,7 +137,7 @@ public class CommandExec implements CommandExecutor {
 			printChunkLoadersList(clList, sender, page);
 		} else if (args[1].equalsIgnoreCase("alwayson")) {
 			if (!sender.hasPermission("betterchunkloader.list.others")) {
-				sender.sendMessage(ChatColor.RED + "You don't have permission to run this command.");
+				sender.sendMessage(Messages.get("PermissionDenied"));
 				return false;
 			}
 			
@@ -158,24 +157,24 @@ public class CommandExec implements CommandExecutor {
 			
 			if (sender.getName().equalsIgnoreCase(playerName)) {
 				if (!sender.hasPermission("betterchunkloader.list.own")) {
-					sender.sendMessage(ChatColor.RED + "You don't have permission to run this command.");
+					sender.sendMessage(Messages.get("PermissionDenied"));
 					return false;
 				}
 			} else {
 				if (!sender.hasPermission("betterchunkloader.list.others")) {
-					sender.sendMessage(ChatColor.RED + "You don't have permission to run this command.");
+					sender.sendMessage(Messages.get("PermissionDenied"));
 					return false;
 				}
 			}
 
 			OfflinePlayer player = instance.getServer().getOfflinePlayer(playerName);
 			if (player==null || !player.hasPlayedBefore()) {
-				sender.sendMessage(ChatColor.RED + "Player not found.");
+				sender.sendMessage(Messages.get("PlayerNotFound"));
 				return false;
 			}
 			List<CChunkLoader> clList = DataStoreManager.getDataStore().getChunkLoaders(player.getUniqueId());
 			if (clList==null || clList.size()==0) {
-				sender.sendMessage(ChatColor.RED + "This player doesn't have any chunk loader.");
+				sender.sendMessage(Messages.get("PlayerHasNoChunkLoaders"));
 				return false;
 			}
 			
@@ -183,12 +182,11 @@ public class CommandExec implements CommandExecutor {
 			int pages=(int) Math.ceil(clSize/5.00);
 
 			if (page>pages) {
-				sender.sendMessage(ChatColor.RED + "Invalid page");
+				sender.sendMessage(Messages.get("InvalidPage"));
 				return false;
 			}
 			
-			sender.sendMessage(ChatColor.GOLD + "== "+player.getName()+" chunk loaders list ("+page+"/"+pages+") ==");
-			sender.sendMessage(ChatColor.GRAY + "(AlwaysOn - Size - Position)");
+			sender.sendMessage(Messages.get("PlayerChunkLoadersList").replace("[player]", player.getName()).replace("[page]", page+"").replace("[pages]", pages+""));
 			
 			for(int i=(page-1)*5; i<page*5 && i<clSize; i++) {
 				CChunkLoader chunkLoader=clList.get(i);
@@ -203,19 +201,18 @@ public class CommandExec implements CommandExecutor {
 
 		int clSize=clList.size();
 		if (clSize==0) {
-			sender.sendMessage(ChatColor.RED + "There isn't any chunk loader yet!");
+			sender.sendMessage(Messages.get("NoChunkLoaders"));
 			return false;
 		}
 		
 		int pages=(int) Math.ceil(clSize/5.00);
 
 		if (page>pages) {
-			sender.sendMessage(ChatColor.RED + "Invalid page");
+			sender.sendMessage(Messages.get("InvalidPage"));
 			return false;
 		}
 		
-		sender.sendMessage(ChatColor.GOLD + "== Chunk loaders list ("+page+"/"+pages+") ==");
-		sender.sendMessage(ChatColor.GRAY + "(Owner - AlwaysOn - Size - Position)");
+		sender.sendMessage(Messages.get("GlobalChunkLoadersList").replace("[page]", page+"").replace("[pages]", pages+""));
 		
 		for(int i=(page-1)*5; i<page*5 && i<clSize; i++) {
 			CChunkLoader chunkLoader=clList.get(i);
@@ -240,13 +237,13 @@ public class CommandExec implements CommandExecutor {
 		}
 		
 		if (!sender.hasPermission("betterchunkloader.chunks")) {
-			sender.sendMessage(ChatColor.RED + "You don't have permission to run this command.");
+			sender.sendMessage(Messages.get("PermissionDenied"));
 			return false;
 		}
 
 		OfflinePlayer player = Bukkit.getOfflinePlayer(args[2]);
 		if (player==null) {
-			sender.sendMessage(args[1]+" is not a valid player name\n"+usage);
+			sender.sendMessage(Messages.get("PlayerNotFound")+"\n"+usage);
 			return false;
 		}
 		
@@ -315,7 +312,7 @@ public class CommandExec implements CommandExecutor {
 	@SuppressWarnings("deprecation")
 	private boolean delete(CommandSender sender, String label, String[] args) {
 		if (!sender.hasPermission("betterchunkloader.delete")) {
-			sender.sendMessage(ChatColor.RED + "You don't have permission to run this command.");
+			sender.sendMessage(Messages.get("PermissionDenied"));
 			return false;
 		}
 		
@@ -343,7 +340,7 @@ public class CommandExec implements CommandExecutor {
 	
 	private boolean purge(CommandSender sender) {
 		if (!sender.hasPermission("betterchunkloader.purge")) {
-			sender.sendMessage(ChatColor.RED + "You don't have permission to run this command.");
+			sender.sendMessage(Messages.get("PermissionDenied"));
 			return false;
 		}
 		
@@ -362,7 +359,7 @@ public class CommandExec implements CommandExecutor {
 
 	private boolean reload(CommandSender sender) {
 		if (!sender.hasPermission("betterchunkloader.reload")) {
-			sender.sendMessage(ChatColor.RED + "You don't have permission to run this command.");
+			sender.sendMessage(Messages.get("PermissionDenied"));
 			return false;
 		}
 
@@ -370,6 +367,38 @@ public class CommandExec implements CommandExecutor {
 		Bukkit.getPluginManager().disablePlugin(instance);
 		Bukkit.getPluginManager().enablePlugin(instance);
 		sender.sendMessage(ChatColor.RED + "BetterChunkLoader reloaded.");
+		return true;
+	}
+	
+	private boolean enable(CommandSender sender) {
+		if (!sender.hasPermission("betterchunkloader.enable")) {
+			sender.sendMessage(Messages.get("PermissionDenied"));
+			return false;
+		}
+		
+		if (instance.enabled) {
+			sender.sendMessage(ChatColor.RED + "BetterChunkLoader is already enabled!");
+			return false;
+		}
+		
+		instance.enable();
+		sender.sendMessage(ChatColor.GREEN + "BetterChunkLoader has been enabled!");
+		return true;
+	}
+	
+	private boolean disable(CommandSender sender) {
+		if (!sender.hasPermission("betterchunkloader.disable")) {
+			sender.sendMessage(Messages.get("PermissionDenied"));
+			return false;
+		}
+		
+		if (!instance.enabled) {
+			sender.sendMessage(ChatColor.RED + "BetterChunkLoader is already disabled!");
+			return false;
+		}
+		
+		instance.disable();
+		sender.sendMessage(ChatColor.GREEN + "BetterChunkLoader has been disabled!");
 		return true;
 	}
 	
@@ -381,8 +410,8 @@ public class CommandExec implements CommandExecutor {
 		int amountAlwaysOn = pd.getAlwaysOnChunksAmount();
 		int amountOnlineOnly = pd.getOnlineOnlyChunksAmount();
 		
-		return ChatColor.GOLD + "=== "+player.getName()+" chunks amount ===\n" + ChatColor.GREEN
-				+ "Always-on - " + ((BetterChunkLoader.hasPermission(player, "betterchunkloader.alwayson")) ? "Free: "+freeAlwaysOn+" Used: "+(amountAlwaysOn-freeAlwaysOn)+" Total: "+amountAlwaysOn : "Missing permission")+"\n"
-				+ "Online-only - " + ((BetterChunkLoader.hasPermission(player, "betterchunkloader.onlineonly")) ? "Free: "+freeOnlineOnly+" Used: "+(amountOnlineOnly-freeOnlineOnly)+" Total: "+amountOnlineOnly+"" : "Missing permission");
+		return Messages.get("PlayerChunksInfo").replace("[player]", player.getName())
+				+ Messages.get("AlwaysOn") + " - " + ((BetterChunkLoader.hasPermission(player, "betterchunkloader.alwayson")) ? Messages.get("Free")+": "+freeAlwaysOn+" "+Messages.get("Used")+": "+(amountAlwaysOn-freeAlwaysOn)+" "+Messages.get("Total")+": "+amountAlwaysOn : Messages.get("MissingPermission"))+"\n"
+				+ Messages.get("OnlineOnly") + " - " + ((BetterChunkLoader.hasPermission(player, "betterchunkloader.onlineonly")) ? Messages.get("Free")+": "+freeOnlineOnly+" "+Messages.get("Used")+": "+(amountOnlineOnly-freeOnlineOnly)+" "+Messages.get("Total")+": "+amountOnlineOnly+"" : Messages.get("MissingPermission"));
 	}
 }

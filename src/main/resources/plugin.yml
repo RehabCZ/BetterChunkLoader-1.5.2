@@ -9,10 +9,10 @@ commands:
 
 permissions:
    betterchunkloader.onlineonly:
-      description: Permission to create new onlineonly chunk loaders
+      description: Create new onlineonly chunk loaders
       default: false
    betterchunkloader.alwayson:
-      description: Permission to create new alwayson chunk loaders
+      description: Create new alwayson chunk loaders
       default: false
    betterchunkloader.list.own:
       description: List own chunk loaders
@@ -43,4 +43,10 @@ permissions:
       default: op
    betterchunkloader.reload:
       description: Reload the plugin
+      default: op
+   betterchunkloader.enable:
+      description: Enable the plugin
+      default: op
+   betterchunkloader.disable:
+      description: Disable the plugin
       default: op
