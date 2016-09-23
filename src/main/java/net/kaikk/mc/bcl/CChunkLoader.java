@@ -97,9 +97,9 @@ public class CChunkLoader extends ChunkLoader implements InventoryHolder {
 			return false;
 		}
 		if (isAlwaysOn) {
-			return this.loc.getBlock().getType()==Material.DIAMOND_BLOCK;
+			return this.loc.getBlock().getType()==BetterChunkLoader.instance().config().alwaysOnMaterial;
 		} else {
-			return this.loc.getBlock().getType()==Material.IRON_BLOCK;
+			return this.loc.getBlock().getType()==BetterChunkLoader.instance().config().onlineOnlyMaterial;
 		}
 	}
 	

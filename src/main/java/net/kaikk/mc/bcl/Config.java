@@ -1,8 +1,11 @@
 package net.kaikk.mc.bcl;
 
+import org.bukkit.Material;
+
 public class Config {
 	public int maxHoursOffline, defaultChunksAmountAlwaysOn, defaultChunksAmountOnlineOnly, maxChunksAmountAlwaysOn, maxChunksAmountOnlineOnly;
 	public String dataStore, mySqlHostname, mySqlUsername, mySqlPassword, mySqlDatabase;
+	public Material onlineOnlyMaterial, alwaysOnMaterial;
 	
 	Config(BetterChunkLoader instance) {
 		instance.getConfig().options().copyDefaults(true);
@@ -22,5 +25,21 @@ public class Config {
 		this.mySqlUsername=instance.getConfig().getString("MySQL.Username");
 		this.mySqlPassword=instance.getConfig().getString("MySQL.Password");
 		this.mySqlDatabase=instance.getConfig().getString("MySQL.Database");
+		
+		String ms = instance.getConfig().getString("OnlineOnlyBlockMaterial", "IRON_BLOCK");
+		Material m = Material.getMaterial(ms);
+		if (m == null) {
+			m = Material.IRON_BLOCK;
+			instance.getLogger().warning("Invalid material: "+ms);
+		}
+		onlineOnlyMaterial = m;
+		
+		ms = instance.getConfig().getString("AlwaysOnBlockMaterial", "DIAMOND_BLOCK");
+		m = Material.getMaterial(ms);
+		if (m == null) {
+			m = Material.DIAMOND_BLOCK;
+			instance.getLogger().warning("Invalid material: "+ms);
+		}
+		alwaysOnMaterial = m;
 	}
 }

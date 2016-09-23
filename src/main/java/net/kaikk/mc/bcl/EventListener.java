@@ -24,6 +24,12 @@ import net.kaikk.mc.bcl.datastore.DataStoreManager;
 import net.kaikk.mc.bcl.forgelib.BCLForgeLib;
 
 public class EventListener implements Listener {
+	private BetterChunkLoader instance;
+	
+	EventListener(BetterChunkLoader instance) {
+		this.instance = instance;
+	}
+	
 	@EventHandler(ignoreCancelled=true, priority = EventPriority.MONITOR)
 	void onPlayerInteract(PlayerInteractEvent event) {
 		//BetterChunkLoader.instance().getLogger().info("PIE");
@@ -35,7 +41,7 @@ public class EventListener implements Listener {
 			return;
 		}
 		
-		if (clickedBlock.getType()==Material.DIAMOND_BLOCK || clickedBlock.getType()==Material.IRON_BLOCK) {
+		if (clickedBlock.getType()==instance.config().alwaysOnMaterial || clickedBlock.getType()==instance.config().onlineOnlyMaterial) {
 			if (action==Action.RIGHT_CLICK_BLOCK) {
 				CChunkLoader chunkLoader = DataStoreManager.getDataStore().getChunkLoaderAt(new BlockLocation(clickedBlock.getLocation()));
 				if (player.getItemInHand().getType()==Material.BLAZE_ROD) {
@@ -48,7 +54,7 @@ public class EventListener implements Listener {
 					} else {
 						if (canBreak(clickedBlock, player)) {
 							UUID uid=player.getUniqueId();
-							if (clickedBlock.getType()==Material.DIAMOND_BLOCK) {
+							if (clickedBlock.getType()==instance.config().alwaysOnMaterial) {
 								if (!player.hasPermission("betterchunkloader.alwayson")) {
 									player.sendMessage(Messages.get("NoPermissionToCreateAlwaysOnChunkLoaders") +(player.isOp()?" (betterchunkloader.alwayson is needed)":""));
 									return;
@@ -56,7 +62,7 @@ public class EventListener implements Listener {
 								if (player.isSneaking() && player.hasPermission("betterchunkloader.adminloader")) {
 									uid=CChunkLoader.adminUUID;
 								}
-							} else if (clickedBlock.getType()==Material.IRON_BLOCK) {
+							} else if (clickedBlock.getType()==instance.config().onlineOnlyMaterial) {
 								if (!player.hasPermission("betterchunkloader.onlineonly")) {
 									player.sendMessage(Messages.get("NoPermissionToCreateOnlineOnlyChunkLoaders")+(player.isOp()?" (betterchunkloader.onlineonly is needed)":""));
 									return;
@@ -65,7 +71,7 @@ public class EventListener implements Listener {
 								return;
 							}
 
-							chunkLoader = new CChunkLoader((int) (Math.floor(clickedBlock.getX()/16.00)), (int) (Math.floor(clickedBlock.getZ()/16.00)), clickedBlock.getWorld().getName(), (byte) -1, uid, new BlockLocation(clickedBlock), null, clickedBlock.getType()==Material.DIAMOND_BLOCK);
+							chunkLoader = new CChunkLoader((int) (Math.floor(clickedBlock.getX()/16.00)), (int) (Math.floor(clickedBlock.getZ()/16.00)), clickedBlock.getWorld().getName(), (byte) -1, uid, new BlockLocation(clickedBlock), null, clickedBlock.getType()==instance.config().alwaysOnMaterial);
 							chunkLoader.showUI(player);
 						} else {
 							player.sendMessage(Messages.get("NoBuildPermission"));
@@ -85,7 +91,7 @@ public class EventListener implements Listener {
 	@EventHandler(ignoreCancelled=true, priority = EventPriority.HIGH)
 	void onBlockBreak(BlockBreakEvent event) {
 		Block block = event.getBlock();
-		if (block==null || (block.getType()!=Material.DIAMOND_BLOCK && block.getType()!=Material.IRON_BLOCK)) {
+		if (block==null || (block.getType()!=instance.config().alwaysOnMaterial && block.getType()!=instance.config().onlineOnlyMaterial)) {
 			return;
 		}
 
