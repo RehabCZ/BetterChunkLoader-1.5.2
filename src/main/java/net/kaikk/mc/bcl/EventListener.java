@@ -32,7 +32,6 @@ public class EventListener implements Listener {
 	
 	@EventHandler(ignoreCancelled=true, priority = EventPriority.MONITOR)
 	void onPlayerInteract(PlayerInteractEvent event) {
-		//BetterChunkLoader.instance().getLogger().info("PIE");
 		Action action = event.getAction();
 	    Player player = event.getPlayer();
 		Block clickedBlock = event.getClickedBlock();
@@ -80,6 +79,9 @@ public class EventListener implements Listener {
 				} else {
 					if (chunkLoader!=null) {
 						player.sendMessage(chunkLoader.info());
+						if (player.isSneaking()) {
+							chunkLoader.showCorners(player);
+						}
 					} else {
 						player.sendMessage(Messages.get("CanCreateChunkLoaders"));
 					}
