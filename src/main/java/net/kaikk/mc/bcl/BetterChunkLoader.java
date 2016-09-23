@@ -61,7 +61,7 @@ public class BetterChunkLoader extends JavaPlugin {
 				Messages.load(this, "messages.yml");
 				
 				// instantiate data store, if needed
-				if (DataStoreManager.getDataStore()==null) {
+				if (DataStoreManager.getDataStore()==null || !DataStoreManager.getDataStore().getName().equals(config.dataStore)) {
 					DataStoreManager.setDataStoreInstance(config.dataStore);
 				}
 				
