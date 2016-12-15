@@ -83,7 +83,9 @@ public class EventListener implements Listener {
 							chunkLoader.showCorners(player);
 						}
 					} else {
-						player.sendMessage(Messages.get("CanCreateChunkLoaders"));
+						if (player.getItemInHand().getType()!=instance.config().alwaysOnMaterial && player.getItemInHand().getType()!=instance.config().onlineOnlyMaterial) {
+							player.sendMessage(Messages.get("CanCreateChunkLoaders"));
+						}
 					}
 				}
 			}
