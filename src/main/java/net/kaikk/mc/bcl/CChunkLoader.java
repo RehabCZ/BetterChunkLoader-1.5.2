@@ -106,9 +106,9 @@ public class CChunkLoader extends ChunkLoader implements InventoryHolder {
 			return false;
 		}
 		if (isAlwaysOn) {
-			return this.loc.getBlock().getType()==BetterChunkLoader.instance().config().alwaysOnMaterial;
+			return this.loc.getBlock().getType()==BetterChunkLoader.instance().config().alwaysOnMaterial && this.loc.getBlock().getData() == BetterChunkLoader.instance().config().alwaysOnMeta;
 		} else {
-			return this.loc.getBlock().getType()==BetterChunkLoader.instance().config().onlineOnlyMaterial;
+			return this.loc.getBlock().getType()==BetterChunkLoader.instance().config().onlineOnlyMaterial && this.loc.getBlock().getData() == BetterChunkLoader.instance().config().onlineOnlyMeta;
 		}
 	}
 	

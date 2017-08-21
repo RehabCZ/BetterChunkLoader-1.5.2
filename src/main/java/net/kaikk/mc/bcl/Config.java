@@ -3,13 +3,16 @@ package net.kaikk.mc.bcl;
 import org.bukkit.Material;
 
 public class Config {
-	public int maxHoursOffline, defaultChunksAmountAlwaysOn, defaultChunksAmountOnlineOnly, maxChunksAmountAlwaysOn, maxChunksAmountOnlineOnly;
+	public int maxHoursOffline, defaultChunksAmountAlwaysOn, defaultChunksAmountOnlineOnly, maxChunksAmountAlwaysOn, maxChunksAmountOnlineOnly, onlineOnlyMeta, alwaysOnMeta;
 	public String dataStore, mySqlHostname, mySqlUsername, mySqlPassword, mySqlDatabase;
 	public Material onlineOnlyMaterial, alwaysOnMaterial;
 	
 	Config(BetterChunkLoader instance) {
 		instance.getConfig().options().copyDefaults(true);
 		instance.saveDefaultConfig();
+
+		this.onlineOnlyMeta = instance.getConfig().getInt("OnlineOnlyBlockMetadata", 1);
+		this.alwaysOnMeta = instance.getConfig().getInt("AlwaysOnBlockMetadata", 2);
 		
 		this.maxHoursOffline=instance.getConfig().getInt("MaxHoursOffline", 168);
 		

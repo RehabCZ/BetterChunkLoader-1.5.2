@@ -13,7 +13,9 @@ MaxChunksAmount:
   
 # Chunk Loaders block types
 OnlineOnlyBlockMaterial: IRON_BLOCK
+OnlineOnlyBlockMetadata: 0
 AlwaysOnBlockMaterial: DIAMOND_BLOCK
+AlwaysOnBlockMetadata: 0
   
 # Data Store to use, XML or MySQL, but extensions can add custom data stores
 DataStore: XML

@@ -40,7 +40,7 @@ public class EventListener implements Listener {
 			return;
 		}
 		
-		if (clickedBlock.getType()==instance.config().alwaysOnMaterial || clickedBlock.getType()==instance.config().onlineOnlyMaterial) {
+		if (clickedBlock.getType()==instance.config().alwaysOnMaterial && clickedBlock.getData() == instance.config().alwaysOnMeta || clickedBlock.getType()==instance.config().onlineOnlyMaterial && clickedBlock.getData() == instance.config().onlineOnlyMeta) {
 			if (action==Action.RIGHT_CLICK_BLOCK) {
 				CChunkLoader chunkLoader = DataStoreManager.getDataStore().getChunkLoaderAt(new BlockLocation(clickedBlock.getLocation()));
 				if (player.getItemInHand().getType()==Material.BLAZE_ROD) {
@@ -53,7 +53,7 @@ public class EventListener implements Listener {
 					} else {
 						if (canBreak(clickedBlock, player)) {
 							UUID uid=player.getUniqueId();
-							if (clickedBlock.getType()==instance.config().alwaysOnMaterial) {
+							if (clickedBlock.getType()==instance.config().alwaysOnMaterial && clickedBlock.getData() == instance.config().alwaysOnMeta) {
 								if (!player.hasPermission("betterchunkloader.alwayson")) {
 									player.sendMessage(Messages.get("NoPermissionToCreateAlwaysOnChunkLoaders") +(player.isOp()?" (betterchunkloader.alwayson is needed)":""));
 									return;
@@ -61,7 +61,7 @@ public class EventListener implements Listener {
 								if (player.isSneaking() && player.hasPermission("betterchunkloader.adminloader")) {
 									uid=CChunkLoader.adminUUID;
 								}
-							} else if (clickedBlock.getType()==instance.config().onlineOnlyMaterial) {
+							} else if (clickedBlock.getType()==instance.config().onlineOnlyMaterial && clickedBlock.getData() == instance.config().onlineOnlyMeta) {
 								if (!player.hasPermission("betterchunkloader.onlineonly")) {
 									player.sendMessage(Messages.get("NoPermissionToCreateOnlineOnlyChunkLoaders")+(player.isOp()?" (betterchunkloader.onlineonly is needed)":""));
 									return;
