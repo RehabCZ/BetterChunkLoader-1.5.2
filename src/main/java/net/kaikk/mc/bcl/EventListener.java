@@ -70,7 +70,7 @@ public class EventListener implements Listener {
 								return;
 							}
 
-							chunkLoader = new CChunkLoader((int) (Math.floor(clickedBlock.getX()/16.00)), (int) (Math.floor(clickedBlock.getZ()/16.00)), clickedBlock.getWorld().getName(), (byte) -1, uid, new BlockLocation(clickedBlock), null, clickedBlock.getType()==instance.config().alwaysOnMaterial);
+							chunkLoader = new CChunkLoader((int) (Math.floor(clickedBlock.getX()/16.00)), (int) (Math.floor(clickedBlock.getZ()/16.00)), clickedBlock.getWorld().getName(), (byte) -1, uid, new BlockLocation(clickedBlock), null, (clickedBlock.getType() == instance.config().alwaysOnMaterial && clickedBlock.getData() == instance.config().alwaysOnMeta));
 							chunkLoader.showUI(player);
 						} else {
 							player.sendMessage(Messages.get("NoBuildPermission"));
