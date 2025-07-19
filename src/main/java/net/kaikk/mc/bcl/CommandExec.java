@@ -72,8 +72,8 @@ public class CommandExec implements CommandExecutor {
 		}
 		
 		int alwaysOnLoaders=0, onlineOnlyLoaders=0, alwaysOnChunks=0, onlineOnlyChunks=0, maxChunksCount=0, players=0;
-		UUID maxChunksPlayer=null;
-		HashMap<UUID, Integer> loadedChunksForPlayer = new HashMap<>();
+		String maxChunksPlayer=null;
+		HashMap<String, Integer> loadedChunksForPlayer = new HashMap<>();
 		
 		for (CChunkLoader chunkLoader : chunkLoaders) {
 			if (chunkLoader.isAlwaysOn()) {
@@ -92,17 +92,17 @@ public class CommandExec implements CommandExecutor {
 			loadedChunksForPlayer.put(chunkLoader.getOwner(), count);
 		}
 
-		loadedChunksForPlayer.remove(CChunkLoader.adminUUID);
+		loadedChunksForPlayer.remove(CChunkLoader.adminname);
 		players=loadedChunksForPlayer.size();
 		
-		for (Entry<UUID, Integer> entry : loadedChunksForPlayer.entrySet()) {
+		for (Entry<String, Integer> entry : loadedChunksForPlayer.entrySet()) {
 			if (maxChunksCount<entry.getValue()) {
 				maxChunksCount=entry.getValue();
 				maxChunksPlayer=entry.getKey();
 			}
 		}
 		
-		sender.sendMessage(Messages.get("Info").replace("[onlineOnlyLoaders]", onlineOnlyLoaders+"").replace("[onlineOnlyChunks]", onlineOnlyChunks+"").replace("[alwaysOnLoaders]", alwaysOnLoaders+"").replace("[alwaysOnChunks]", alwaysOnChunks+"").replace("[players]", players+"").replace("[maxChunksPlayer]", instance.getServer().getOfflinePlayer(maxChunksPlayer).getName()).replace("[maxChunksCount]", maxChunksCount+""));		
+		sender.sendMessage(Messages.get("Info").replace("[onlineOnlyLoaders]", onlineOnlyLoaders+"").replace("[onlineOnlyChunks]", onlineOnlyChunks+"").replace("[alwaysOnLoaders]", alwaysOnLoaders+"").replace("[alwaysOnChunks]", alwaysOnChunks+"").replace("[players]", players+"").replace("[maxChunksPlayer]", Bukkit.getOfflinePlayer(maxChunksPlayer).getName()).replace("[maxChunksCount]", maxChunksCount+""));
 		return true;
 	}
 	
@@ -172,7 +172,7 @@ public class CommandExec implements CommandExecutor {
 				sender.sendMessage(Messages.get("PlayerNotFound"));
 				return false;
 			}
-			List<CChunkLoader> clList = DataStoreManager.getDataStore().getChunkLoaders(player.getUniqueId());
+			List<CChunkLoader> clList = DataStoreManager.getDataStore().getChunkLoaders(player.getPlayer().getName());
 			if (clList==null || clList.size()==0) {
 				sender.sendMessage(Messages.get("PlayerHasNoChunkLoaders"));
 				return false;
@@ -264,7 +264,7 @@ public class CommandExec implements CommandExecutor {
 			}
 			
 			if (args[1].equalsIgnoreCase("add")) {
-				PlayerData playerData = DataStoreManager.getDataStore().getPlayerData(player.getUniqueId());
+				PlayerData playerData = DataStoreManager.getDataStore().getPlayerData(player.getPlayer().getName());
 				if (args[3].equalsIgnoreCase("alwayson")) {
 					if (playerData.getAlwaysOnChunksAmount()+amount>this.instance.config().maxChunksAmountAlwaysOn) {
 						if (args.length != 5 && args[5].equalsIgnoreCase("max")) {
@@ -275,7 +275,7 @@ public class CommandExec implements CommandExecutor {
 						}
 					}
 
-					DataStoreManager.getDataStore().addAlwaysOnChunksLimit(player.getUniqueId(), amount);
+					DataStoreManager.getDataStore().addAlwaysOnChunksLimit(player.getPlayer().getName(), amount);
 					sender.sendMessage("Added "+amount+" always-on chunks to "+player.getName());
 				} else if (args[3].equalsIgnoreCase("onlineonly")) {
 					if (playerData.getOnlineOnlyChunksAmount()+amount>this.instance.config().maxChunksAmountOnlineOnly) {
@@ -287,7 +287,7 @@ public class CommandExec implements CommandExecutor {
 						}
 					}
 					
-					DataStoreManager.getDataStore().addOnlineOnlyChunksLimit(player.getUniqueId(), amount);
+					DataStoreManager.getDataStore().addOnlineOnlyChunksLimit(player.getPlayer().getName(), amount);
 					sender.sendMessage("Added "+amount+" online-only chunks to "+player.getName());
 				} else {
 					sender.sendMessage("Invalid argument "+args[3]+"\n"+usage);
@@ -300,10 +300,10 @@ public class CommandExec implements CommandExecutor {
 				}
 				
 				if (args[3].equalsIgnoreCase("alwayson")) {
-					DataStoreManager.getDataStore().setAlwaysOnChunksLimit(player.getUniqueId(), amount);
+					DataStoreManager.getDataStore().setAlwaysOnChunksLimit(player.getPlayer().getName(), amount);
 					sender.sendMessage("Set "+amount+" always-on chunks to "+player.getName());
 				} else if (args[3].equalsIgnoreCase("onlineonly")) {
-					DataStoreManager.getDataStore().setOnlineOnlyChunksLimit(player.getUniqueId(), amount);
+					DataStoreManager.getDataStore().setOnlineOnlyChunksLimit(player.getPlayer().getName(), amount);
 					sender.sendMessage("Set "+amount+" online-only chunks to "+player.getName());
 				} else {
 					sender.sendMessage("Invalid argument "+args[3]+"\n"+usage);
@@ -334,13 +334,13 @@ public class CommandExec implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + "Player not found.");
 			return false;
 		}
-		List<CChunkLoader> clList = DataStoreManager.getDataStore().getChunkLoaders(player.getUniqueId());
+		List<CChunkLoader> clList = DataStoreManager.getDataStore().getChunkLoaders(player.getPlayer().getName());
 		if (clList==null) {
 			sender.sendMessage(ChatColor.RED + "This player doesn't have any chunk loader.");
 			return false;
 		}
 		
-		DataStoreManager.getDataStore().removeChunkLoaders(player.getUniqueId());
+		DataStoreManager.getDataStore().removeChunkLoaders(player.getPlayer().getName());
 		sender.sendMessage(ChatColor.RED + "All chunk loaders placed by this player have been removed.");
 		instance.getLogger().info(sender.getName()+" deleted all chunk loaders placed by "+player.getName());
 		return true;
@@ -412,9 +412,9 @@ public class CommandExec implements CommandExecutor {
 	
 	static String chunksInfo(OfflinePlayer player) {
 		IDataStore dataStore = DataStoreManager.getDataStore();
-		int freeAlwaysOn = dataStore.getAlwaysOnFreeChunksAmount(player.getUniqueId());
-		int freeOnlineOnly = dataStore.getOnlineOnlyFreeChunksAmount(player.getUniqueId());
-		PlayerData pd=dataStore.getPlayerData(player.getUniqueId());
+		int freeAlwaysOn = dataStore.getAlwaysOnFreeChunksAmount(player.getPlayer().getName());
+		int freeOnlineOnly = dataStore.getOnlineOnlyFreeChunksAmount(player.getPlayer().getName());
+		PlayerData pd=dataStore.getPlayerData(player.getPlayer().getName());
 		int amountAlwaysOn = pd.getAlwaysOnChunksAmount();
 		int amountOnlineOnly = pd.getOnlineOnlyChunksAmount();
 		

@@ -17,7 +17,7 @@ import org.bukkit.Effect;
  * Classes that extend this class should store the data somewhere. */
 public abstract class AHashMapDataStore implements IDataStore {
 	protected Map<String, List<CChunkLoader>> chunkLoaders;
-	protected Map<UUID, PlayerData> playersData;
+	protected Map<String, PlayerData> playersData;
 	
 	@Override
 	public List<CChunkLoader> getChunkLoaders() {
@@ -29,7 +29,7 @@ public abstract class AHashMapDataStore implements IDataStore {
 	}
 
 	@Override
-	public List<CChunkLoader> getChunkLoaders(String worldName) {
+	public List<CChunkLoader> getChunkLoadersByWorld(String worldName) {
 		List<CChunkLoader> list = this.chunkLoaders.get(worldName);
 		if (list==null) {
 			return Collections.emptyList();
@@ -40,7 +40,7 @@ public abstract class AHashMapDataStore implements IDataStore {
 	@Override
 	public List<CChunkLoader> getChunkLoadersAt(String worldName, int chunkX, int chunkZ) {
 		List<CChunkLoader> chunkLoaders = new ArrayList<CChunkLoader>();
-		for (CChunkLoader cl : this.getChunkLoaders(worldName)) {
+		for (CChunkLoader cl : this.getChunkLoadersByWorld(worldName)) {
 			if (cl.getChunkX()==chunkX && cl.getChunkZ()==chunkZ) {
 				chunkLoaders.add(cl);
 			}
@@ -49,7 +49,7 @@ public abstract class AHashMapDataStore implements IDataStore {
 	}
 
 	@Override
-	public List<CChunkLoader> getChunkLoaders(UUID ownerId) {
+	public List<CChunkLoader> getChunkLoaders(String ownerId) {
 		List<CChunkLoader> chunkLoaders = new ArrayList<CChunkLoader>();
 		for (CChunkLoader cl : this.getChunkLoaders()) {
 			if (cl.getOwner().equals(ownerId)) {
@@ -61,7 +61,7 @@ public abstract class AHashMapDataStore implements IDataStore {
 
 	@Override
 	public CChunkLoader getChunkLoaderAt(BlockLocation blockLocation) {
-		for (CChunkLoader cl : this.getChunkLoaders(blockLocation.getWorldName())) {
+		for (CChunkLoader cl : this.getChunkLoadersByWorld(blockLocation.getWorldName())) {
 			if (cl.getLoc().getX()==blockLocation.getX() && cl.getLoc().getZ()==blockLocation.getZ() && cl.getLoc().getY()==blockLocation.getY()) {
 				return cl;
 			}
@@ -97,10 +97,10 @@ public abstract class AHashMapDataStore implements IDataStore {
 	}
 	
 	@Override
-	public void removeChunkLoaders(UUID ownerId) {
+	public void removeChunkLoaders(String ownerId) {
 		List<CChunkLoader> clList = this.getChunkLoaders(ownerId);
 		for (CChunkLoader cl : clList) {
-			this.getChunkLoaders(cl.getWorldName()).remove(cl);
+			this.getChunkLoadersByWorld(cl.getWorldName()).remove(cl);
 		}
 	}
 	
@@ -118,7 +118,7 @@ public abstract class AHashMapDataStore implements IDataStore {
 	}
 
 	@Override
-	public int getAlwaysOnFreeChunksAmount(UUID playerId) {
+	public int getAlwaysOnFreeChunksAmount(String playerId) {
 		int clAmount=this.getPlayerData(playerId).getAlwaysOnChunksAmount();
 		for (CChunkLoader cl : this.getChunkLoaders(playerId)) {
 			if (cl.isAlwaysOn()) {
@@ -130,7 +130,7 @@ public abstract class AHashMapDataStore implements IDataStore {
 	}
 
 	@Override
-	public int getOnlineOnlyFreeChunksAmount(UUID playerId) {
+	public int getOnlineOnlyFreeChunksAmount(String playerId) {
 		int clAmount=this.getPlayerData(playerId).getOnlineOnlyChunksAmount();
 		for (CChunkLoader cl : this.getChunkLoaders(playerId)) {
 			if (!cl.isAlwaysOn()) {
@@ -142,31 +142,31 @@ public abstract class AHashMapDataStore implements IDataStore {
 	}
 
 	@Override
-	public void setAlwaysOnChunksLimit(UUID playerId, int amount) {
+	public void setAlwaysOnChunksLimit(String playerId, int amount) {
 		PlayerData playerData = this.getPlayerData(playerId);
 		playerData.setAlwaysOnChunksAmount(amount);
 	}
 
 	@Override
-	public void setOnlineOnlyChunksLimit(UUID playerId, int amount) {
+	public void setOnlineOnlyChunksLimit(String playerId, int amount) {
 		PlayerData playerData = this.getPlayerData(playerId);
 		playerData.setOnlineOnlyChunksAmount(amount);
 	}
 
 	@Override
-	public void addAlwaysOnChunksLimit(UUID playerId, int amount) {
+	public void addAlwaysOnChunksLimit(String playerId, int amount) {
 		PlayerData playerData = this.getPlayerData(playerId);
 		playerData.setAlwaysOnChunksAmount(playerData.getAlwaysOnChunksAmount()+amount);
 	}
 
 	@Override
-	public void addOnlineOnlyChunksLimit(UUID playerId, int amount) {
+	public void addOnlineOnlyChunksLimit(String playerId, int amount) {
 		PlayerData playerData = this.getPlayerData(playerId);
 		playerData.setOnlineOnlyChunksAmount(playerData.getOnlineOnlyChunksAmount()+amount);
 	}
 	
 	@Override
-	public PlayerData getPlayerData(UUID playerId) {
+	public PlayerData getPlayerData(String playerId) {
 		PlayerData playerData = this.playersData.get(playerId);
 		if (playerData==null) {
 			playerData = new PlayerData(playerId);
@@ -177,6 +177,6 @@ public abstract class AHashMapDataStore implements IDataStore {
 	
 	@Override
 	public List<PlayerData> getPlayersData() {
-		return new ArrayList<PlayerData>(this.playersData.values());
+		return new ArrayList<>(this.playersData.values());
 	}
 }

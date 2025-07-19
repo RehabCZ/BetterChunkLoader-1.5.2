@@ -9,29 +9,29 @@ import net.kaikk.mc.bcl.BetterChunkLoader;
 
 @XmlRootElement
 public class PlayerData {
-	private UUID playerId;
+	private String playerId;
 	private int alwaysOnChunksAmount, onlineOnlyChunksAmount;
 	
 	PlayerData(){}
 	
-	public PlayerData(UUID playerId) {
+	public PlayerData(String playerId) {
 		this.playerId = playerId;
 		this.alwaysOnChunksAmount=BetterChunkLoader.instance().config().defaultChunksAmountAlwaysOn;
 		this.onlineOnlyChunksAmount=BetterChunkLoader.instance().config().defaultChunksAmountOnlineOnly;
 	}
 
-	public PlayerData(UUID playerId, int alwaysOnChunksAmount, int onlineOnlyChunksAmount) {
+	public PlayerData(String playerId, int alwaysOnChunksAmount, int onlineOnlyChunksAmount) {
 		this.playerId = playerId;
 		this.alwaysOnChunksAmount = alwaysOnChunksAmount;
 		this.onlineOnlyChunksAmount = onlineOnlyChunksAmount;
 	}
 
-	public UUID getPlayerId() {
+	public String getPlayerId() {
 		return playerId;
 	}
 	
 	@XmlAttribute(name="id")
-	public void setPlayerId(UUID playerId) {
+	public void setPlayerId(String playerId) {
 		this.playerId = playerId;
 	}
 	

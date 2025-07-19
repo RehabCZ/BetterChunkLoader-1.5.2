@@ -1,6 +1,6 @@
-name: ${project.artifactId}
-main: ${package}.BetterChunkLoader
-version: ${project.version}
+name: ${name}
+main: ${main}
+version: ${version}
 
 commands:
    betterchunkloader:

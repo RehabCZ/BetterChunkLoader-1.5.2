@@ -10,14 +10,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Messages {
-	private static Map<String, String> messages = new HashMap<String, String>();
+	private static final Map<String, String> messages = new HashMap<>();
 	
 	public static void load(JavaPlugin instance, String fileName) {
 		if (!new File(instance.getDataFolder(), fileName).exists()) {
 			instance.saveResource(fileName, false);
 		}
 		
-		@SuppressWarnings("deprecation")
 		FileConfiguration defaultMessages = YamlConfiguration.loadConfiguration(instance.getResource(fileName));
 		FileConfiguration messages = YamlConfiguration.loadConfiguration(new File(instance.getDataFolder(), fileName));
 		

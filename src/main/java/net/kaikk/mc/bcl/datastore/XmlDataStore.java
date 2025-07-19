@@ -125,31 +125,31 @@ public class XmlDataStore extends AHashMapDataStore {
 	}
 	
 	@Override
-	public void removeChunkLoaders(UUID ownerId) {
+	public void removeChunkLoaders(String ownerId) {
 		super.removeChunkLoaders(ownerId);
 		this.saveChunkLoaders();
 	}
 
 	@Override
-	public void setAlwaysOnChunksLimit(UUID playerId, int amount) {
+	public void setAlwaysOnChunksLimit(String playerId, int amount) {
 		super.setAlwaysOnChunksLimit(playerId, amount);
 		this.savePlayersData();
 	}
 
 	@Override
-	public void setOnlineOnlyChunksLimit(UUID playerId, int amount) {
+	public void setOnlineOnlyChunksLimit(String playerId, int amount) {
 		super.setOnlineOnlyChunksLimit(playerId, amount);
 		this.savePlayersData();
 	}
 
 	@Override
-	public void addAlwaysOnChunksLimit(UUID playerId, int amount) {
+	public void addAlwaysOnChunksLimit(String playerId, int amount) {
 		super.addAlwaysOnChunksLimit(playerId, amount);
 		this.savePlayersData();
 	}
 
 	@Override
-	public void addOnlineOnlyChunksLimit(UUID playerId, int amount) {
+	public void addOnlineOnlyChunksLimit(String playerId, int amount) {
 		super.addOnlineOnlyChunksLimit(playerId, amount);
 		this.savePlayersData();
 	}

@@ -29,8 +29,8 @@ import net.kaikk.mc.bcl.forgelib.ChunkLoader;
 @XmlRootElement
 @XmlAccessorType(value=XmlAccessType.NONE)
 public class CChunkLoader extends ChunkLoader implements InventoryHolder {
-	final public static UUID adminUUID = new UUID(0,1);
-	private UUID owner;
+	final public static String adminname = "";
+	private String ownerName;
 	private BlockLocation loc;
 	private Date creationDate;
 	private boolean isAlwaysOn;
@@ -39,18 +39,18 @@ public class CChunkLoader extends ChunkLoader implements InventoryHolder {
 	
 	public CChunkLoader() { }
 	
-	public CChunkLoader(int chunkX, int chunkZ, String worldName, byte range, UUID owner, BlockLocation loc, Date creationDate, boolean isAlwaysOn) {
+	public CChunkLoader(int chunkX, int chunkZ, String worldName, byte range, String owner, BlockLocation loc, Date creationDate, boolean isAlwaysOn) {
 		super(chunkX, chunkZ, worldName, range);
-		this.owner = owner;
+		this.ownerName = owner;
 		this.loc = loc;
 		this.creationDate = creationDate;
 		this.isAlwaysOn = isAlwaysOn;
 	}
 	
-	public CChunkLoader(String location, byte range, UUID owner, Date creationDate, boolean isAlwaysOn) {
+	public CChunkLoader(String location, byte range, String owner, Date creationDate, boolean isAlwaysOn) {
 		super(0, 0, "", range);
 		this.setLocationString(location);
-		this.owner = owner;
+		this.ownerName = owner;
 		this.creationDate = creationDate;
 		this.isAlwaysOn = isAlwaysOn;
 	}
@@ -60,25 +60,27 @@ public class CChunkLoader extends ChunkLoader implements InventoryHolder {
 	}
 
 	public OfflinePlayer getOfflinePlayer() {
-		return BetterChunkLoader.instance().getServer().getOfflinePlayer(this.owner);
+		return Bukkit.getOfflinePlayer(this.ownerName);
 	}
 	
 	public Player getPlayer() {
-		return BetterChunkLoader.instance().getServer().getPlayer(this.owner);
+		return  Bukkit.getPlayer(this.ownerName);
 	}
 	
 	public long getOwnerLastPlayed() {
 		if (this.isAdminChunkLoader()) {
 			return System.currentTimeMillis();
 		}
-		return BetterChunkLoader.getPlayerLastPlayed(owner);
+		return BetterChunkLoader.getPlayerLastPlayed(this.ownerName);
 	}
 	
 	public String getOwnerName() {
 		if (this.isAdminChunkLoader()) {
 			return Messages.get("Admin");
 		}
-		return this.getOfflinePlayer().getName();
+
+		return ownerName;
+
 	}
 	
 	public int side() {
@@ -121,8 +123,8 @@ public class CChunkLoader extends ChunkLoader implements InventoryHolder {
 		return (this.isAlwaysOn?"y":"n")+" - "+this.sizeX()+" - "+this.loc.toString();
 	}
 	
-	public UUID getOwner() {
-		return owner;
+	public String getOwner() {
+		return ownerName;
 	}
 	
 	public BlockLocation getLoc() {
@@ -205,8 +207,8 @@ public class CChunkLoader extends ChunkLoader implements InventoryHolder {
 	}
 	
 	@XmlAttribute(name="own")
-	void setOwner(UUID owner) {
-		this.owner = owner;
+	void setOwner(String owner) {
+		this.ownerName = owner;
 	}
 
 	@XmlAttribute(name="aon")
@@ -225,7 +227,7 @@ public class CChunkLoader extends ChunkLoader implements InventoryHolder {
 	}
 	
 	public boolean isAdminChunkLoader() {
-		return adminUUID.equals(this.owner);
+		return adminname.equals(this.ownerName);
 	}
 	
 	@SuppressWarnings("deprecation")

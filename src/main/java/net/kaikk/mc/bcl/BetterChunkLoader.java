@@ -1,10 +1,10 @@
 package net.kaikk.mc.bcl;
 
 import java.io.File;
-import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.kaikk.mc.bcl.datastore.DataStoreManager;
@@ -32,7 +32,7 @@ public class BetterChunkLoader extends JavaPlugin {
 		try {
 			Class.forName("net.minecraftforge.common.ForgeVersion");
 		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Cauldron/KCauldron and BCLForgeLib are needed to run this plugin!");
+			throw new RuntimeException("BukkitForge/MCPC+ and BCLForgeLib are needed to run this plugin!");
 		}
 		
 		// check if BCLForgeLib is present
@@ -115,19 +115,24 @@ public class BetterChunkLoader extends JavaPlugin {
 		return instance;
 	}
 	
-	public static long getPlayerLastPlayed(UUID playerId) {
-		OfflinePlayer player = Bukkit.getOfflinePlayer(playerId);
-		if (player.getLastPlayed()!=0) {
-			return player.getLastPlayed();
-		} else if (player.getName()!=null && !player.getName().isEmpty()) {
-			return getPlayerDataLastModified(playerId);
+	public static long getPlayerLastPlayed(String player) {
+		OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player);
+
+		if (offlinePlayer == null) {
+			return 0;
+		}
+
+		if (offlinePlayer.getLastPlayed()!=0) {
+			return offlinePlayer.getLastPlayed();
+		} else if (offlinePlayer.getName()!=null && !offlinePlayer.getName().isEmpty()) {
+			return getPlayerDataLastModified(player);
 		}
 		
 		return 0;
 	}
-	
-	public static long getPlayerDataLastModified(UUID playerId) {
-		File playerData =new File(Bukkit.getWorlds().get(0).getWorldFolder(), "playerdata"+File.separator+playerId.toString()+".dat");
+
+	public static long getPlayerDataLastModified(String playerName) {
+		File playerData = new File(Bukkit.getWorlds().get(0).getWorldFolder(), "players"+File.separator+playerName+".dat");
 		if (playerData.exists()) {
 			return playerData.lastModified();
 		}
@@ -140,7 +145,15 @@ public class BetterChunkLoader extends JavaPlugin {
 	
 	public static boolean hasPermission(OfflinePlayer player, String permission) {
 		try {
-			return permissions.playerHas(null, player, permission);
+			return permissions.playerHas(player.getPlayer(), permission) || player.isOp();
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	public static boolean hasPermission(Player player, String permission) {
+		try {
+			return permissions.playerHas(player, permission) || player.isOp();
 		} catch (Exception e) {
 			return false;
 		}

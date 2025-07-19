@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+group = 'net.kaikk.mc.bcl'
+version = '2.5.1'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compileOnly files('libs/spigot-1.5.2.jar')
+    compileOnly files('libs/BCLForgeLib-1.0.jar')
+    compileOnly files('libs/Vault.jar')
+    compileOnly("javax.xml.bind:jaxb-api:2.3.1")
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    filesMatching('plugin.yml') {
+        expand([
+                name: project.name,
+                main: "${project.group}.${project.name}",
+                version: project.version,
+                developer: 'KaiNoMood'
+        ])
+    }
+
+}

@@ -39,30 +39,30 @@ public class EventListener implements Listener {
 		if (clickedBlock==null || player==null) {
 			return;
 		}
-		
+
 		if (clickedBlock.getType()==instance.config().alwaysOnMaterial && clickedBlock.getData() == instance.config().alwaysOnMeta || clickedBlock.getType()==instance.config().onlineOnlyMaterial && clickedBlock.getData() == instance.config().onlineOnlyMeta) {
 			if (action==Action.RIGHT_CLICK_BLOCK) {
 				CChunkLoader chunkLoader = DataStoreManager.getDataStore().getChunkLoaderAt(new BlockLocation(clickedBlock.getLocation()));
 				if (player.getItemInHand().getType()==Material.BLAZE_ROD) {
 					if (chunkLoader!=null) {
-						if (player.getUniqueId().equals(chunkLoader.getOwner()) || player.hasPermission("betterchunkloader.edit") || (chunkLoader.isAdminChunkLoader() && player.hasPermission("betterchunkloader.adminloader"))) {
+						if (player.getUniqueId().equals(chunkLoader.getOwner()) || BetterChunkLoader.hasPermission(player,"betterchunkloader.edit") || (chunkLoader.isAdminChunkLoader() && BetterChunkLoader.hasPermission(player,"betterchunkloader.adminloader"))) {
 							chunkLoader.showUI(player);
 						} else {
 							player.sendMessage(Messages.get("CantEditOthersChunkLoaders"));
 						}
 					} else {
 						if (canBreak(clickedBlock, player)) {
-							UUID uid=player.getUniqueId();
+							String uid=player.getName();
 							if (clickedBlock.getType()==instance.config().alwaysOnMaterial && clickedBlock.getData() == instance.config().alwaysOnMeta) {
-								if (!player.hasPermission("betterchunkloader.alwayson")) {
+								if (!BetterChunkLoader.hasPermission(player,"betterchunkloader.alwayson")) {
 									player.sendMessage(Messages.get("NoPermissionToCreateAlwaysOnChunkLoaders") +(player.isOp()?" (betterchunkloader.alwayson is needed)":""));
 									return;
 								}
 								if (player.isSneaking() && player.hasPermission("betterchunkloader.adminloader")) {
-									uid=CChunkLoader.adminUUID;
+									uid=CChunkLoader.adminname;
 								}
 							} else if (clickedBlock.getType()==instance.config().onlineOnlyMaterial && clickedBlock.getData() == instance.config().onlineOnlyMeta) {
-								if (!player.hasPermission("betterchunkloader.onlineonly")) {
+								if (!BetterChunkLoader.hasPermission(player,"betterchunkloader.onlineonly")) {
 									player.sendMessage(Messages.get("NoPermissionToCreateOnlineOnlyChunkLoaders")+(player.isOp()?" (betterchunkloader.onlineonly is needed)":""));
 									return;
 								}
@@ -123,7 +123,7 @@ public class EventListener implements Listener {
 			return;
 		}
 	
-		List<CChunkLoader> clList = DataStoreManager.getDataStore().getChunkLoaders(event.getPlayer().getUniqueId());
+		List<CChunkLoader> clList = DataStoreManager.getDataStore().getChunkLoaders(event.getPlayer().getName());
 
 		for (CChunkLoader chunkLoader : clList) {
 			if (!chunkLoader.isAlwaysOn() && chunkLoader.blockCheck()) {
@@ -134,7 +134,7 @@ public class EventListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	void onPlayerQuit(PlayerQuitEvent event) {
-		List<CChunkLoader> clList = DataStoreManager.getDataStore().getChunkLoaders(event.getPlayer().getUniqueId());
+		List<CChunkLoader> clList = DataStoreManager.getDataStore().getChunkLoaders(event.getPlayer().getName());
 
 		for (CChunkLoader chunkLoader : clList) {
 			if (!chunkLoader.isAlwaysOn()) {
@@ -155,12 +155,12 @@ public class EventListener implements Listener {
     		}
     		
     		if (chunkLoader.isAdminChunkLoader()) {
-    			if (!player.hasPermission("betterchunkloader.adminloader")) {
+    			if (!BetterChunkLoader.hasPermission(player,"betterchunkloader.adminloader")) {
 	    			player.sendMessage(Messages.get("PermissionDenied"));
 	    			return;
     			}
     		} else {
-	    		if (!player.getUniqueId().equals(chunkLoader.getOwner()) && !player.hasPermission("betterchunkloader.edit")) {
+	    		if (!player.getUniqueId().equals(chunkLoader.getOwner()) && !BetterChunkLoader.hasPermission(player,"betterchunkloader.edit")) {
 	    			player.sendMessage(Messages.get("CantEditOthersChunkLoaders"));
 	    			return;
 	    		}
@@ -177,7 +177,7 @@ public class EventListener implements Listener {
         			pos-=2;
         			
         			// if higher range, check if the player has enough free chunks
-        			if (!chunkLoader.isAdminChunkLoader() && !player.hasPermission("betterchunkloader.unlimitedchunks")) {
+        			if (!chunkLoader.isAdminChunkLoader() && !BetterChunkLoader.hasPermission(player,"betterchunkloader.unlimitedchunks")) {
 	        			if (pos>chunkLoader.getRange()) {
 	        				int needed = ((1+(pos*2))*(1+(pos*2)))-chunkLoader.size();
 	        				int available;
@@ -203,7 +203,7 @@ public class EventListener implements Listener {
     		} else if (pos>1 && pos<7) {
     			pos-=2;
     			
-    			if (!chunkLoader.isAdminChunkLoader() && !player.hasPermission("betterchunkloader.unlimitedchunks")) {
+    			if (!chunkLoader.isAdminChunkLoader() && !BetterChunkLoader.hasPermission(player,"betterchunkloader.unlimitedchunks")) {
 	    			int needed = (1+(pos*2))*(1+(pos*2));
 					int available;
 					if (chunkLoader.isAlwaysOn()) {
@@ -231,7 +231,7 @@ public class EventListener implements Listener {
     
     @EventHandler(priority=EventPriority.MONITOR)
     void onWorldLoad(WorldLoadEvent event) {
-		for (CChunkLoader cl : DataStoreManager.getDataStore().getChunkLoaders(event.getWorld().getName())) {
+		for (CChunkLoader cl : DataStoreManager.getDataStore().getChunkLoadersByWorld(event.getWorld().getName())) {
 			if (cl.isLoadable()) {
 				BCLForgeLib.instance().addChunkLoader(cl);
 			}

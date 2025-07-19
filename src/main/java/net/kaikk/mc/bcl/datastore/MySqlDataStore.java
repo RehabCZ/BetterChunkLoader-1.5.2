@@ -46,7 +46,7 @@ public class MySqlDataStore extends AHashMapDataStore {
 			this.statement().executeUpdate("CREATE TABLE IF NOT EXISTS bcl_chunkloaders ("
 					+ "loc varchar(50) NOT NULL, "
 					+ "r tinyint(3) unsigned NOT NULL, "
-					+ "owner binary(16) NOT NULL, "
+					+ "owner varchar(64) NOT NULL, "
 					+ "date bigint(20) NOT NULL, "
 					+ "aon tinyint(1) NOT NULL, "
 					+ "UNIQUE KEY loc (loc));");
@@ -65,7 +65,7 @@ public class MySqlDataStore extends AHashMapDataStore {
 		try {
 			ResultSet rs = this.statement().executeQuery("SELECT * FROM bcl_chunkloaders");
 			while(rs.next()) {
-				CChunkLoader chunkLoader = new CChunkLoader(rs.getString(1), rs.getByte(2), toUUID(rs.getBytes(3)), new Date(rs.getLong(4)), rs.getBoolean(5));
+				CChunkLoader chunkLoader = new CChunkLoader(rs.getString(1), rs.getByte(2), rs.getString(3), new Date(rs.getLong(4)), rs.getBoolean(5));
 				List<CChunkLoader> clList = this.chunkLoaders.get(chunkLoader.getWorldName());
 				if (clList==null) {
 					clList=new ArrayList<CChunkLoader>();
@@ -78,11 +78,11 @@ public class MySqlDataStore extends AHashMapDataStore {
 			throw new RuntimeException(e);
 		}
 		
-		this.playersData = new HashMap<UUID, PlayerData>();
+		this.playersData = new HashMap<String, PlayerData>();
 		try {
 			ResultSet rs = this.statement().executeQuery("SELECT * FROM bcl_playersdata");
 			while(rs.next()) {
-				PlayerData pd = new PlayerData(toUUID(rs.getBytes(1)), rs.getInt(2), rs.getInt(3));
+				PlayerData pd = new PlayerData(rs.getString(1), rs.getInt(2), rs.getInt(3));
 				this.playersData.put(pd.getPlayerId(), pd);
 			}
 		} catch (SQLException e) {
@@ -95,7 +95,7 @@ public class MySqlDataStore extends AHashMapDataStore {
 	public void addChunkLoader(CChunkLoader chunkLoader) {
 		super.addChunkLoader(chunkLoader);
 		try {
-			this.statement().executeUpdate("REPLACE INTO bcl_chunkloaders VALUES (\""+chunkLoader.getLocationString()+"\", "+chunkLoader.getRange()+", "+UUIDtoHexString(chunkLoader.getOwner())+", "+chunkLoader.getCreationDate().getTime()+", "+(chunkLoader.isAlwaysOn()?1:0)+")");
+			this.statement().executeUpdate("REPLACE INTO bcl_chunkloaders VALUES (\""+chunkLoader.getLocationString()+"\", "+chunkLoader.getRange()+", "+chunkLoader.getOwner()+", "+chunkLoader.getCreationDate().getTime()+", "+(chunkLoader.isAlwaysOn()?1:0)+")");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -112,10 +112,10 @@ public class MySqlDataStore extends AHashMapDataStore {
 	}
 
 	@Override
-	public void removeChunkLoaders(UUID ownerId) {
+	public void removeChunkLoaders(String ownerId) {
 		super.removeChunkLoaders(ownerId);
 		try {
-			this.statement().executeUpdate("DELETE FROM bcl_chunkloaders WHERE owner = "+UUIDtoHexString(ownerId));
+			this.statement().executeUpdate("DELETE FROM bcl_chunkloaders WHERE owner = "+ownerId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -132,40 +132,40 @@ public class MySqlDataStore extends AHashMapDataStore {
 	}
 
 	@Override
-	public void setAlwaysOnChunksLimit(UUID playerId, int amount) {
+	public void setAlwaysOnChunksLimit(String playerId, int amount) {
 		super.setAlwaysOnChunksLimit(playerId, amount);
 		try {
-			this.statement().executeUpdate("INSERT INTO bcl_playersdata VALUES ("+UUIDtoHexString(playerId)+", "+amount+", "+BetterChunkLoader.instance().config().defaultChunksAmountOnlineOnly+") ON DUPLICATE KEY UPDATE alwayson="+amount);
+			this.statement().executeUpdate("INSERT INTO bcl_playersdata VALUES ("+playerId+", "+amount+", "+BetterChunkLoader.instance().config().defaultChunksAmountOnlineOnly+") ON DUPLICATE KEY UPDATE alwayson="+amount);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void setOnlineOnlyChunksLimit(UUID playerId, int amount) {
+	public void setOnlineOnlyChunksLimit(String playerId, int amount) {
 		super.setOnlineOnlyChunksLimit(playerId, amount);
 		try {
-			this.statement().executeUpdate("INSERT INTO bcl_playersdata VALUES ("+UUIDtoHexString(playerId)+", "+BetterChunkLoader.instance().config().defaultChunksAmountAlwaysOn+", "+amount+") ON DUPLICATE KEY UPDATE onlineonly="+amount);
+			this.statement().executeUpdate("INSERT INTO bcl_playersdata VALUES ("+playerId+", "+BetterChunkLoader.instance().config().defaultChunksAmountAlwaysOn+", "+amount+") ON DUPLICATE KEY UPDATE onlineonly="+amount);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void addAlwaysOnChunksLimit(UUID playerId, int amount) {
+	public void addAlwaysOnChunksLimit(String playerId, int amount) {
 		super.addAlwaysOnChunksLimit(playerId, amount);
 		try {
-			this.statement().executeUpdate("INSERT INTO bcl_playersdata VALUES ("+UUIDtoHexString(playerId)+", "+amount+", "+BetterChunkLoader.instance().config().defaultChunksAmountOnlineOnly+") ON DUPLICATE KEY UPDATE alwayson=alwayson+"+amount);
+			this.statement().executeUpdate("INSERT INTO bcl_playersdata VALUES ("+playerId+", "+amount+", "+BetterChunkLoader.instance().config().defaultChunksAmountOnlineOnly+") ON DUPLICATE KEY UPDATE alwayson=alwayson+"+amount);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void addOnlineOnlyChunksLimit(UUID playerId, int amount) {
+	public void addOnlineOnlyChunksLimit(String playerId, int amount) {
 		super.addOnlineOnlyChunksLimit(playerId, amount);
 		try {
-			this.statement().executeUpdate("INSERT INTO bcl_playersdata VALUES ("+UUIDtoHexString(playerId)+", "+BetterChunkLoader.instance().config().defaultChunksAmountAlwaysOn+", "+amount+") ON DUPLICATE KEY UPDATE onlineonly=onlineonly+"+amount);
+			this.statement().executeUpdate("INSERT INTO bcl_playersdata VALUES ("+playerId+", "+BetterChunkLoader.instance().config().defaultChunksAmountAlwaysOn+", "+amount+") ON DUPLICATE KEY UPDATE onlineonly=onlineonly+"+amount);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
